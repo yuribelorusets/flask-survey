@@ -9,8 +9,6 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-responses = []
-
 # survey_title = survey.title
 # survey_instructions = survey.instructions
 # questions = survey.questions
@@ -27,28 +25,34 @@ responses = []
 
 @app.get("/")
 def go_home():
+    session["responses"] = []
     return render_template("/survey_start.html", survey=survey)
 
 @app.post("/begin")
 def start_survey():
     return redirect(f"/questions/0")
 
-
 @app.get("/questions/<int:index>")
 def display_question(index):
-    index = len(responses)
+    if index > len(session["responses"]):
+        return redirect(f"/questions/{len(session['responses'])}")
+
     question = survey.questions[index]
     return render_template("/question.html", survey_question=question)
 
 @app.post("/answer")
 def submit_answer():
-    
+
     answer = request.form["answer"]
+
+    responses = session["responses"]
     responses.append(answer)
-    index = len(responses)
+    session['responses'] = responses
 
-    if index == len(survey.questions):
-        return render_template("/completion.html")  
+    next_question = len(session["responses"])
 
-    return redirect(f"/questions/{index}")
+    if next_question == len(survey.questions):
+        return render_template("/completion.html")
+
+    return redirect(f"/questions/{next_question}")
 
