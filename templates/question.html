@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h1>{{ question.question }}</h1>
+  <h1>{{ survey_question.question }}</h1>
 
   <form action="/answer" method="POST">
 
       <!-- you should have one item like this for every choice -->
-      <p>
+      <p>{% for choice in survey_question.choices %}
         <input
             type="radio"
             name="answer"
-            value="value-goes-here">
-        {{ question.choices }}
+            value="{{ choice }}">
+            {{choice}}
+        {% endfor %}
       </p>
 
     <button>Continue</button>
